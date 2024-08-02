@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000; // Utiliser la variable d'environnement PORT ou 3000 par défaut
 
 app.use(cors({
-    origin: 'https://localhost:5173', // Remplacez par l'URL de votre front-end
+    origin: ['https://aurelienallenic.fr', 'http://localhost:5173'],
 }));
 app.use(bodyParser.json()); // Utilisez bodyParser pour analyser le corps des requêtes JSON
 
