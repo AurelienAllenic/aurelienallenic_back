@@ -1,4 +1,3 @@
-// ./back/server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,10 +5,10 @@ const { sendEmail } = require('./mailer');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Utiliser la variable d'environnement PORT ou 3000 par défaut
 
 app.use(cors({
-    origin: 'http://localhost:5173', // Remplacez par l'URL de votre front-end
+    origin: 'https://aurelienallenic.fr', // Remplacez par l'URL de votre front-end
 }));
 app.use(bodyParser.json()); // Utilisez bodyParser pour analyser le corps des requêtes JSON
 
