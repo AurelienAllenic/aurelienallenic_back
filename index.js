@@ -5,16 +5,16 @@ const { sendEmail } = require('./mailer');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Utiliser la variable d'environnement PORT ou 3000 par défaut
+const port = process.env.PORT || 3000;
 
-// Initialisation du compteur pour les clics sur le QR code
+// Initialisation du compteur pour les clics sur le QR code et les visites sur le site
 let qrClickCount = 0;
 let visits = 0;
 
 app.use(cors({
     origin: ['https://aurelienallenic.fr', 'http://localhost:5173', 'http://localhost:5174', "https://paro-officiel.com", "https://paro-musique.com"],
 }));
-app.use(bodyParser.json()); // Utilisez bodyParser pour analyser le corps des requêtes JSON
+app.use(bodyParser.json());
 
 app.post('/send-email', async (req, res) => {
     const { name, email, message } = req.body;
@@ -28,6 +28,7 @@ app.post('/send-email', async (req, res) => {
     }
 });
 
+// qr code
 
 app.get('/increment-qr', (req, res) => {
     qrClickCount++;
@@ -39,6 +40,8 @@ app.get('/check-qr-clicks', (req, res) => {
     res.status(200).json({ clickCount: qrClickCount });
 });
 
+// visits
+
 app.get('/increment-visits', (req, res) => {
     visits++;
     console.log(`site visited ${visits} times`);
@@ -48,6 +51,8 @@ app.get('/increment-visits', (req, res) => {
 app.get('/check-visits', (req, res) => {
     res.status(200).json({ visits: visits });
 });
+
+// base
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
