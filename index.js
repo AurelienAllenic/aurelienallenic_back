@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const { sendEmail } = require('./mailer');
 require('dotenv').config();
 
@@ -10,6 +11,17 @@ const port = process.env.PORT || 3000;
 // Initialisation du compteur pour les clics sur le QR code et les visites sur le site
 let qrClickCount = 0;
 let visits = 0;
+
+// Configuration du rate limiter
+const limiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 heure
+    max: 15,
+    message: "Vous avez atteint la limite d'appels pour cette heure.",
+    keyGenerator: (req) => req.ip, // Utilise l'IP comme clé pour chaque utilisateur
+});
+
+// Appliquer le rate limiter à toutes les routes
+app.use(limiter);
 
 app.use(cors({
     origin: ['https://aurelienallenic.fr', 'http://localhost:5173', 'http://localhost:5174', "https://paro-officiel.com", "https://paro-musique.com"],
@@ -61,4 +73,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at ${port}`);
 });
-
