@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000; // Utiliser la variable d'environnement P
 let qrClickCount = 0;
 
 app.use(cors({
-    origin: ['https://aurelienallenic.fr', 'http://localhost:5173', 'http://localhost:5174'],
+    origin: ['https://aurelienallenic.fr', 'http://localhost:5173', 'http://localhost:5174', "https://paro-officiel.com"],
 }));
 app.use(bodyParser.json()); // Utilisez bodyParser pour analyser le corps des requêtes JSON
 
