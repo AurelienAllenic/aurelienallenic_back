@@ -27,16 +27,25 @@ app.post('/send-email', async (req, res) => {
     }
 });
 
-// Route pour incrémenter le compteur des clics sur le QR code
+
 app.get('/increment-qr', (req, res) => {
-    qrClickCount++; // Incrémente le compteur
+    qrClickCount++;
     console.log(`QR code clicked ${qrClickCount} times`);
     res.status(200).json({ success: true, clickCount: qrClickCount });
 });
 
-// Route pour vérifier le nombre de clics
 app.get('/check-qr-clicks', (req, res) => {
     res.status(200).json({ clickCount: qrClickCount });
+});
+
+app.get('/increment-visits', (req, res) => {
+    visits++;
+    console.log(`site visited ${visits} times`);
+    res.status(200).json({ success: true, visits: visits });
+});
+
+app.get('/check-visits', (req, res) => {
+    res.status(200).json({ visits: visits });
 });
 
 app.get('/', (req, res) => {
