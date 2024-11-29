@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000; // Utiliser la variable d'environnement P
 
 // Initialisation du compteur pour les clics sur le QR code
 let qrClickCount = 0;
+let visits = 0;
 
 app.use(cors({
     origin: ['https://aurelienallenic.fr', 'http://localhost:5173', 'http://localhost:5174', "https://paro-officiel.com", "https://paro-musique.com"],
