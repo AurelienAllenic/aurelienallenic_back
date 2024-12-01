@@ -10,7 +10,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuration de Mongoose pour MongoDB
-mongoose.connect(process.env.MONGO_SECRET_KEY, {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
