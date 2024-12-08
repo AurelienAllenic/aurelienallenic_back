@@ -10,7 +10,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuration de Mongoose pour MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGO_SECRET_KEY, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -67,8 +67,12 @@ app.use(
             'https://paro-officiel.com',
             'https://paro-musique.com',
         ],
+        credentials: true, // Autoriser l'envoi de cookies
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Méthodes autorisées
+        allowedHeaders: ['Content-Type', 'Authorization'], // En-têtes autorisés
     })
 );
+
 app.use(bodyParser.json());
 
 // Endpoint pour envoyer des emails
