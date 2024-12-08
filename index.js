@@ -6,6 +6,7 @@ const limiter = require('./config/rateLimiter');
 
 const counterRoutes = require('./routes/counterRoutes');
 const emailRoutes = require('./routes/emailRoutes');
+const authRoutes = require('./routes/authRoutes'); // Ajout des routes d'authentification
 
 require('dotenv').config();
 
@@ -20,9 +21,12 @@ app.use(limiter);
 app.use(corsConfig);
 app.use(bodyParser.json());
 
-// Routes
+// Routes existantes
 app.use(counterRoutes);
 app.use(emailRoutes);
+
+// Routes pour l'authentification
+app.use('/auth', authRoutes); // Ajout du préfixe '/auth' pour éviter les conflits
 
 // Route par défaut
 app.get('/', (req, res) => res.send('Hello World!'));
