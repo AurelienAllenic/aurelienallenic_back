@@ -19,6 +19,7 @@ connectDB();
 
 // Middlewares
 app.use(corsConfig);
+app.options('*', corsConfig);
 //app.use(limiter);
 app.use(bodyParser.json());
 
