@@ -1,5 +1,6 @@
 const cors = require('cors');
 
+// Définition des options CORS
 const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
@@ -9,18 +10,32 @@ const corsOptions = {
             'https://paro-officiel.com',
             'https://paro-musique.com',
         ];
+
+        // Si l'origine est autorisée ou qu'il n'y a pas d'origine (cas de requêtes locales), autoriser la requête
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            // Si l'origine n'est pas autorisée, renvoyer une erreur CORS
             callback(new Error('CORS policy: Origin not allowed'));
         }
     },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,  // Permet l'envoi de cookies ou d'en-têtes d'authentification avec la requête
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // Méthodes HTTP autorisées
+    allowedHeaders: ['Content-Type', 'Authorization'],  // En-têtes autorisés
 };
 
-app.use(cors(corsOptions)); // Assure-toi d'ajouter cette ligne avant les autres middlewares
+// Middleware CORS qui appliquera les options définies ci-dessus
+const corsConfig = (req, res, next) => {
+    cors(corsOptions)(req, res, () => {
+        if (req.method === 'OPTIONS') {
+            // Si la méthode est OPTIONS (pré-vol), renvoyer une réponse sans erreur
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            return res.status(200).send();
+        }
+        next();  // Passer au middleware suivant si ce n'est pas une requête OPTIONS
+    });
+};
 
-// Autres middlewares
-app.options('*', cors(corsOptions));  // CORS pour les requêtes OPTIONS
+module.exports = corsConfig;
