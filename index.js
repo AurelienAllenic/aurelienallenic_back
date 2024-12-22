@@ -21,6 +21,8 @@ connectDB();
 app.use(corsConfig);  // Applique la configuration CORS à toutes les routes
 app.options('*', corsConfig); // CORS pour les requêtes OPTIONS (prérequis pour certaines requêtes HTTP comme POST)
 
+app.use(limiter);
+
 // Middleware pour parser le corps des requêtes JSON
 app.use(bodyParser.json());
 
