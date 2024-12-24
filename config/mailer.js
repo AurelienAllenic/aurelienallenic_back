@@ -14,9 +14,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async (to, subject, text) => {
-    console.log(`${to}, ${subject}, ${text}`);
-    console.log('SMTP_EMAIL:', process.env.SMTP_EMAIL);
-console.log('SMTP_PASSWORD:', process.env.SMTP_PASSWORD);
     const mailOptions = { from: process.env.SMTP_EMAIL, to, subject, text };
     await transporter.sendMail(mailOptions);
 };

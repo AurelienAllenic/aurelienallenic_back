@@ -28,13 +28,12 @@ const corsOptions = {
 const corsConfig = (req, res, next) => {
     cors(corsOptions)(req, res, () => {
         if (req.method === 'OPTIONS') {
-            // Si la méthode est OPTIONS (pré-vol), renvoyer une réponse sans erreur
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
             res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
             return res.status(200).send();
         }
-        next();  // Passer au middleware suivant si ce n'est pas une requête OPTIONS
+        next();
     });
 };
 
