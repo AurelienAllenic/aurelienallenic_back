@@ -13,9 +13,7 @@ exports.register = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'Cet utilisateur existe déjà.' });
         }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = new User({ username, password: hashedPassword });
+        const newUser = new User({ username, password: password });
         await newUser.save();
 
         res.status(201).json({ message: 'Utilisateur créé avec succès.' });
@@ -24,6 +22,8 @@ exports.register = async (req, res) => {
     }
 };
 
+
+
 // Connexion
 exports.login = (req, res, next) => {
     User.findOne({ username: req.body.username })
@@ -31,11 +31,16 @@ exports.login = (req, res, next) => {
             if (!user) {
                 return res.status(401).json({ error: 'Utilisateur non trouvé !' });
             }
-            bcrypt.compare(req.body.password, user.password)
+
+            // On nettoie les espaces éventuels avant de comparer
+            bcrypt.compare(req.body.password.trim(), user.password)
                 .then(valid => {
+
                     if (!valid) {
+                        console.log('Paire username/password incorrecte');
                         return res.status(401).json({ error: 'Paire username/password incorrecte !' });
                     }
+
                     res.status(200).json({
                         userId: user._id,
                         token: jwt.sign(
@@ -45,7 +50,13 @@ exports.login = (req, res, next) => {
                         )
                     });
                 })
-                .catch(error => res.status(500).json({ error }));
+                .catch(error => {
+                    console.error('Erreur bcrypt:', error);
+                    res.status(500).json({ error });
+                });
         })
-        .catch(error => res.status(500).json({ error }));
+        .catch(error => {
+            console.error('Erreur lors de la recherche de l\'utilisateur:', error);
+            res.status(500).json({ error });
+        });
 };
