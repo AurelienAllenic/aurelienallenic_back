@@ -19,7 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.11.0",
     "mongoose": "^8.8.3",
-    "nodemailer": "^6.9.14",
+    "nodemailer": "^6.9.16",
     "uuid": "^11.0.3"
   }
 }
