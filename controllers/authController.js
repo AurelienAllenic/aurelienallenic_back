@@ -60,3 +60,21 @@ exports.login = (req, res, next) => {
             res.status(500).json({ error });
         });
 };
+
+exports.verifyToken = (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: 'Token manquant ou invalide.' });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+        const decodedToken = jwt.verify(token, process.env.RANDOM_SECRET_TOKEN || 'secret_key');
+        res.status(200).json({ message: 'Token valide.', userId: decodedToken.userId });
+    } catch (error) {
+        console.error('Erreur lors de la vérification du token:', error);
+        res.status(401).json({ message: 'Token invalide.' });
+    }
+};
