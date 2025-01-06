@@ -2,6 +2,7 @@ const Radio = require('../models/Radio');
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const { log } = require('console');
 
 // Ajouter une radio
 exports.addRadio = async (req, res) => {
@@ -15,9 +16,11 @@ exports.addRadio = async (req, res) => {
     }
 
     // Récupérer l'URL de l'image si un fichier est téléchargé
-    let imageUrl = null;
+    
     if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`; // Construire l'URL de l'image
+        console.log(req.file);
+        
+        image = `/uploads/${req.file.filename}`; // Construire l'URL de l'image
     }
 
     try {
@@ -29,7 +32,7 @@ exports.addRadio = async (req, res) => {
             firstVideo,
             secondVideo,
             thirdVideo,
-            image: imageUrl // Ajouter l'URL de l'image
+            image: image // Ajouter l'URL de l'image
         });
 
         await newRadio.save();
