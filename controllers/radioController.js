@@ -79,7 +79,7 @@ exports.updateRadio = async (req, res) => {
 
     // Vérifier si une image est téléchargée et mettre à jour l'URL de l'image
     if (req.file) {
-        updateData.image = `/uploads/${req.file.filename}`; // Mettre à jour l'URL de l'image
+        updateData.image = `${req.file.filename}`; // Mettre à jour l'URL de l'image
     }
 
     try {
