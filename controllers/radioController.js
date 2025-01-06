@@ -20,7 +20,7 @@ exports.addRadio = async (req, res) => {
     if (req.file) {
         console.log(req.file);
         
-        image = `/uploads/${req.file.filename}`; // Construire l'URL de l'image
+        image = `${req.file.filename}`; // Construire l'URL de l'image
     }
 
     try {
