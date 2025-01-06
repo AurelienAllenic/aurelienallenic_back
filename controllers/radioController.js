@@ -18,7 +18,7 @@ exports.addRadio = async (req, res) => {
     // Récupérer l'URL de l'image si un fichier est téléchargé
     
     if (req.file) {
-        console.log(req.file);
+        console.log(req.file.filename);
         
         image = `${req.file.filename}`; // Construire l'URL de l'image
     }
@@ -32,7 +32,7 @@ exports.addRadio = async (req, res) => {
             firstVideo,
             secondVideo,
             thirdVideo,
-            image: image // Ajouter l'URL de l'image
+            image
         });
 
         await newRadio.save();
