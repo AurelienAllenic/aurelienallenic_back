@@ -3,13 +3,14 @@ const router = express.Router();
 const radioController = require('../controllers/radioController');
 const smartLinkController = require('../controllers/smartLinkController');
 const auth = require('../middlewares/authMiddleware');
+const { uploadImage, deleteImage } = require('../middlewares/multerMiddleware');
 
 // RADIO ROUTES
-router.post('/add-radio', auth, radioController.addRadio);
+router.post('/add-radio', auth, uploadImage, radioController.addRadio);
 router.get('/radios', radioController.findAllRadios);
 router.get('/radios/:id', radioController.findOneRadio);
-router.put('/radios/:id', auth, radioController.updateRadio);
-router.delete('/radios/:id', auth, radioController.deleteRadio);
+router.put('/radios/:id', auth, uploadImage, radioController.updateRadio);
+router.delete('/radios/:id', auth, deleteImage, radioController.deleteRadio);
 
 // SMART LINK ROUTES
 
