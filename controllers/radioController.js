@@ -107,7 +107,7 @@ exports.updateRadio = async (req, res) => {
                 console.log("Ancienne image supprimée avec succès de Cloudinary :", result);
             });
         }
-
+/*
         // Télécharger la nouvelle image sur Cloudinary
         await cloudinary.uploader.upload(req.file.path, (error, result) => {
             if (error) {
@@ -118,6 +118,7 @@ exports.updateRadio = async (req, res) => {
             console.log("Nouvelle image téléchargée avec succès sur Cloudinary :", result);
             updateData.image = result.secure_url; // Mise à jour de l'URL de l'image dans la base de données
         });
+        */
     }
 
     try {
@@ -164,7 +165,7 @@ exports.deleteRadio = async (req, res) => {
 
         // Récupérer le public ID de l'image de Cloudinary
         const imagePublicId = radio.image.split('/').pop().split('.')[0]; // Par exemple : "radioImage.jpg" => "radioImage"
-        
+        /*
         // Supprimer l'image de Cloudinary
         await cloudinary.uploader.destroy(imagePublicId, (error, result) => {
             if (error) {
@@ -173,7 +174,7 @@ exports.deleteRadio = async (req, res) => {
             }
             console.log("Image supprimée avec succès de Cloudinary :", result);
         });
-
+        */
         // Supprimer la radio de la base de données
         const result = await Radio.deleteOne({ _id: id });
 
