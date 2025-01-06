@@ -1,37 +1,35 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Configuration de multer pour gérer l'upload des fichiers
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true }); // Créer le dossier s'il n'existe pas
-    }
-    cb(null, uploadDir); // Le dossier où les fichiers seront stockés
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + path.extname(file.originalname); // Générer un nom unique
-    cb(null, uniqueSuffix); // Nom du fichier après modification
+// Configurer Cloudinary avec les variables d'environnement
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configuration du stockage Multer-Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads', // Dossier dans Cloudinary
+    format: async (req, file) => 'png', // Convertir en PNG
+    public_id: (req, file) => Date.now() // Nom unique basé sur la date
   }
 });
 
 const upload = multer({ storage: storage });
 
-// Middleware pour gérer l'upload d'une image (pour la création ou la mise à jour)
+// Middleware pour gérer l'upload d'une image
 exports.uploadImage = upload.single('image');
 
-// Middleware pour supprimer l'image dans le dossier uploads
-exports.deleteImage = (imagePath) => {
-  if (imagePath) {
-    const fullPath = path.join(__dirname, '..', imagePath);
-    fs.unlink(fullPath, (err) => {
-      if (err) {
-        console.error('Erreur lors de la suppression de l\'image :', err);
-      } else {
-        console.log('Image supprimée avec succès.');
-      }
-    });
+// Middleware pour supprimer une image de Cloudinary
+exports.deleteImage = async (publicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+    console.log('Image supprimée avec succès de Cloudinary :', result);
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'image de Cloudinary :', error);
   }
 };
