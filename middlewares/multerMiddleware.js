@@ -13,7 +13,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'uploads', // Dossier dans Cloudinary
+    folder: '', // Dossier dans Cloudinary
     format: async (req, file) => file.mimetype.split('/')[1], // Conserver le format original
     public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`, // Nom unique
   },
