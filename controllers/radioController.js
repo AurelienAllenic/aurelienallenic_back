@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { log } = require('console');
 const cloudinary = require('cloudinary').v2;
+const crypto = require('crypto');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -174,10 +175,26 @@ exports.deleteRadio = async (req, res) => {
         }
 
         // Récupérer le public ID de l'image de Cloudinary
-        const imagePublicId = radio.image.split('/').pop().split('.')[0]; // Par exemple : "radioImage.jpg" => "radioImage"
+        const imagePublicId = radio.image.split('/').pop().split('.')[0]; // Exemple : "radioImage.jpg" => "radioImage"
 
-        // Supprimer l'image de Cloudinary
-        await cloudinary.uploader.destroy(imagePublicId, (error, result) => {
+        // Générer la signature pour Cloudinary
+        const generateSignature = (publicId) => {
+            const apiSecret = process.env.CLOUDINARY_API_SECRET; // Ta clé secrète Cloudinary
+            const timestamp = Math.floor(Date.now() / 1000); // Timestamp actuel
+            const params = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+            return crypto.createHash('sha1').update(params).digest('hex');
+        };
+
+        // Récupérer la signature
+        const signature = generateSignature(imagePublicId);
+        const timestamp = Math.floor(Date.now() / 1000);
+
+        // Supprimer l'image de Cloudinary en utilisant la signature générée
+        await cloudinary.uploader.destroy(imagePublicId, {
+            api_key: process.env.CLOUDINARY_API_KEY,
+            signature,
+            timestamp
+        }, (error, result) => {
             if (error) {
                 console.log("Erreur Cloudinary :", error);
                 return res.status(500).json({ message: "Erreur lors de la suppression de l'image de Cloudinary.", error: error.message });
