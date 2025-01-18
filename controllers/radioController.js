@@ -1,10 +1,7 @@
 const Radio = require('../models/Radio');
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const { log } = require('console');
 const cloudinary = require('cloudinary').v2;
-const crypto = require('crypto');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -71,6 +68,7 @@ exports.findAllRadios = async (req, res) => {
     }
 };
 
+
 // Trouver une radio par ID
 exports.findOneRadio = async (req, res) => {
     const { id } = req.params;
@@ -88,49 +86,13 @@ exports.findOneRadio = async (req, res) => {
     }
 };
 
+
 // Mettre à jour une radio
 exports.updateRadio = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
     console.log('Données reçues pour la mise à jour:', updateData);
-
-    // Vérifier si une image est téléchargée
-    if (req.file) {
-        // Si une image est téléchargée, on met à jour l'URL de l'image
-        const newImage = req.file.filename;
-
-        // Trouver la radio avant de supprimer l'image existante
-        const radio = await Radio.findById(id);
-        if (!radio) {
-            return res.status(404).json({ message: 'Radio non trouvée.' });
-        }
-
-        // Récupérer l'ancien public_id de l'image (si une image existe déjà)
-        if (radio.image) {
-            const oldImagePublicId = radio.image.split('/').pop().split('.')[0]; // Par exemple : "radioImage.jpg" => "radioImage"
-            // Supprimer l'ancienne image de Cloudinary
-            await cloudinary.uploader.destroy(oldImagePublicId, (error, result) => {
-                if (error) {
-                    console.log("Erreur Cloudinary :", error);
-                    return res.status(500).json({ message: "Erreur lors de la suppression de l'ancienne image de Cloudinary.", error: error.message });
-                }
-                console.log("Ancienne image supprimée avec succès de Cloudinary :", result);
-            });
-        }
-/*
-        // Télécharger la nouvelle image sur Cloudinary
-        await cloudinary.uploader.upload(req.file.path, (error, result) => {
-            if (error) {
-                console.log("Erreur lors du téléchargement de la nouvelle image :", error);
-                return res.status(500).json({ message: "Erreur lors du téléchargement de l'image sur Cloudinary.", error: error.message });
-            }
-
-            console.log("Nouvelle image téléchargée avec succès sur Cloudinary :", result);
-            updateData.image = result.secure_url; // Mise à jour de l'URL de l'image dans la base de données
-        });
-        */
-    }
 
     try {
         if (!id) {
@@ -139,6 +101,22 @@ exports.updateRadio = async (req, res) => {
 
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({ message: 'Aucune donnée à mettre à jour.' });
+        }
+
+        // Vérifier si une image est téléchargée
+        if (req.file) {
+            const filePath = req.file.path; // Chemin du fichier téléchargé
+
+            // Télécharger l'image sur Cloudinary
+            try {
+                const cloudinaryResult = await cloudinary.uploader.upload(filePath);
+                console.log("Image téléchargée avec succès sur Cloudinary :", cloudinaryResult);
+
+                updateData.image = cloudinaryResult.secure_url;
+            } catch (error) {
+                console.error("Erreur lors du téléchargement de l'image sur Cloudinary :", error);
+                return res.status(500).json({ message: "Erreur lors du téléchargement de l'image sur Cloudinary.", error: error.message });
+            }
         }
 
         const updatedRadio = await Radio.findOneAndUpdate(
@@ -158,6 +136,8 @@ exports.updateRadio = async (req, res) => {
     }
 };
 
+
+
 // Supprimer une radio
 exports.deleteRadio = async (req, res) => {
     const { id } = req.params;
@@ -168,42 +148,18 @@ exports.deleteRadio = async (req, res) => {
     }
 
     try {
-        // Trouver la radio avant de supprimer l'image de Cloudinary
+        // Trouver la radio avant de la supprimer
         const radio = await Radio.findById(id);
         if (!radio) {
             return res.status(404).json({ message: 'Radio non trouvée.' });
         }
 
-        // Récupérer le public ID de l'image de Cloudinary
-        const imagePublicId = radio.image.split('/').pop().split('.')[0]; // Exemple : "radioImage.jpg" => "radioImage"
-
-        // Générer la signature pour Cloudinary
-        const generateSignature = (publicId) => {
-            const apiSecret = process.env.CLOUDINARY_API_SECRET; // Ta clé secrète Cloudinary
-            const timestamp = Math.floor(Date.now() / 1000); // Timestamp actuel
-            const params = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-            return crypto.createHash('sha1').update(params).digest('hex');
-        };
-
-        // Récupérer la signature
-        const signature = generateSignature(imagePublicId);
-        const timestamp = Math.floor(Date.now() / 1000);
-
-        // Supprimer l'image de Cloudinary en utilisant la signature générée
-        await cloudinary.uploader.destroy(imagePublicId, {
-            api_key: process.env.CLOUDINARY_API_KEY,
-            signature,
-            timestamp
-        }, (error, result) => {
-            if (error) {
-                console.log("Erreur Cloudinary :", error);
-                return res.status(500).json({ message: "Erreur lors de la suppression de l'image de Cloudinary.", error: error.message });
-            }
-            console.log("Image supprimée avec succès de Cloudinary :", result);
-        });
+        // Optionnel : Si vous souhaitez supprimer l'image de Cloudinary, vous pouvez décommenter cette partie.
+        // const imagePublicId = radio.image.split('/').pop().split('.')[0]; // Exemple : "radioImage.jpg" => "radioImage"
 
         // Supprimer la radio de la base de données
         const result = await Radio.deleteOne({ _id: id });
+        console.log("Résultat de la suppression : ", result);
 
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Radio non trouvée.' });

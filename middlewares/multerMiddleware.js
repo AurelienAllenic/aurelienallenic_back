@@ -45,6 +45,7 @@ exports.uploadImage = (req, res, next) => {
 };
 
 // Middleware pour supprimer une image de Cloudinary
+/*
 exports.deleteImage = async (publicId) => {
   try {
     const result = await cloudinary.uploader.destroy(publicId);
@@ -53,3 +54,4 @@ exports.deleteImage = async (publicId) => {
     console.error('Erreur lors de la suppression de l\'image de Cloudinary :', error);
   }
 };
+*/
