@@ -103,6 +103,12 @@ exports.updateRadio = async (req, res) => {
             return res.status(400).json({ message: 'Aucune donnée à mettre à jour.' });
         }
 
+        // Récupérer la radio existante pour obtenir l'image actuelle
+        const radio = await Radio.findById(id);
+        if (!radio) {
+            return res.status(404).json({ message: 'Radio non trouvée.' });
+        }
+
         // Vérifier si une image est téléchargée
         if (req.file) {
             const filePath = req.file.path; // Chemin du fichier téléchargé
@@ -112,13 +118,17 @@ exports.updateRadio = async (req, res) => {
                 const cloudinaryResult = await cloudinary.uploader.upload(filePath);
                 console.log("Image téléchargée avec succès sur Cloudinary :", cloudinaryResult);
 
-                updateData.image = cloudinaryResult.secure_url;
+                updateData.image = cloudinaryResult.secure_url; // Mettre à jour l'image seulement si une nouvelle image est envoyée
             } catch (error) {
                 console.error("Erreur lors du téléchargement de l'image sur Cloudinary :", error);
                 return res.status(500).json({ message: "Erreur lors du téléchargement de l'image sur Cloudinary.", error: error.message });
             }
+        } else {
+            // Si aucune image n'est envoyée, conserver l'image actuelle dans les données à mettre à jour
+            updateData.image = radio.image; // On garde l'image actuelle de la radio
         }
 
+        // Mettre à jour les autres données
         const updatedRadio = await Radio.findOneAndUpdate(
             { _id: id },
             { $set: updateData },
@@ -135,6 +145,8 @@ exports.updateRadio = async (req, res) => {
         res.status(400).json({ message: 'Erreur lors de la mise à jour de la radio', error: error.message });
     }
 };
+
+
 
 
 
