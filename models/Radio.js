@@ -5,7 +5,7 @@ const RadioSchema = new mongoose.Schema({
     date: { type: String, required: true, unique: true },
     image: { type: String, required: false },
     guestsList: { type: String, required: true },
-    firstVideo: { type: String, required: true },
+    firstVideo: { type: String, required: false },
     secondVideo: { type: String, required: false },
     thirdVideo: { type: String, required: false },
     id: { type: String, unique: true }
