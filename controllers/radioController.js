@@ -15,9 +15,9 @@ exports.addRadio = async (req, res) => {
     const { title, date, guestsList, firstVideo, secondVideo, thirdVideo } = req.body;
 
     // Vérifier si tous les champs sont remplis
-    if (!title || !date || !guestsList || !firstVideo || !secondVideo || !thirdVideo) {
+    if (!title || !date || !guestsList) {
         console.log("Champs manquants");
-        return res.status(400).json({ message: 'Tous les champs sont requis.' });
+        return res.status(400).json({ message: 'Tous les champs sont requis sauf les vidéos.' });
     }
 
     let image = '';
@@ -30,7 +30,7 @@ exports.addRadio = async (req, res) => {
         try {
             const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
             console.log("Image téléchargée avec succès sur Cloudinary :", cloudinaryResult);
-            image = cloudinaryResult.secure_url; // Obtenir l'URL sécurisée de l'image
+            image = cloudinaryResult.secure_url;
         } catch (error) {
             console.error("Erreur lors du téléchargement de l'image sur Cloudinary :", error);
             return res.status(500).json({ message: "Erreur lors du téléchargement de l'image sur Cloudinary.", error: error.message });
@@ -43,9 +43,9 @@ exports.addRadio = async (req, res) => {
             title,
             date,
             guestsList,
-            firstVideo,
-            secondVideo,
-            thirdVideo,
+            firstVideo: firstVideo || null,
+            secondVideo: secondVideo || null,
+            thirdVideo: thirdVideo || null,
             image
         });
 
@@ -79,7 +79,6 @@ exports.findOneRadio = async (req, res) => {
             return res.status(404).json({ message: 'Radio non trouvée.' });
         }
 
-        // Retourner la radio avec son image
         res.status(200).json({ message: 'Radio trouvée', data: radio });
     } catch (error) {
         res.status(400).json({ message: 'Erreur lors de la récupération de la radio', error: error.message });
@@ -103,32 +102,28 @@ exports.updateRadio = async (req, res) => {
             return res.status(400).json({ message: 'Aucune donnée à mettre à jour.' });
         }
 
-        // Récupérer la radio existante pour obtenir l'image actuelle
         const radio = await Radio.findById(id);
         if (!radio) {
             return res.status(404).json({ message: 'Radio non trouvée.' });
         }
 
-        // Vérifier si une image est téléchargée
         if (req.file) {
-            const filePath = req.file.path; // Chemin du fichier téléchargé
+            const filePath = req.file.path;
 
             // Télécharger l'image sur Cloudinary
             try {
                 const cloudinaryResult = await cloudinary.uploader.upload(filePath);
                 console.log("Image téléchargée avec succès sur Cloudinary :", cloudinaryResult);
 
-                updateData.image = cloudinaryResult.secure_url; // Mettre à jour l'image seulement si une nouvelle image est envoyée
+                updateData.image = cloudinaryResult.secure_url;
             } catch (error) {
                 console.error("Erreur lors du téléchargement de l'image sur Cloudinary :", error);
                 return res.status(500).json({ message: "Erreur lors du téléchargement de l'image sur Cloudinary.", error: error.message });
             }
         } else {
-            // Si aucune image n'est envoyée, conserver l'image actuelle dans les données à mettre à jour
-            updateData.image = radio.image; // On garde l'image actuelle de la radio
+            updateData.image = radio.image;
         }
 
-        // Mettre à jour les autres données
         const updatedRadio = await Radio.findOneAndUpdate(
             { _id: id },
             { $set: updateData },
@@ -147,9 +142,6 @@ exports.updateRadio = async (req, res) => {
 };
 
 
-
-
-
 // Supprimer une radio
 exports.deleteRadio = async (req, res) => {
     const { id } = req.params;
@@ -160,7 +152,6 @@ exports.deleteRadio = async (req, res) => {
     }
 
     try {
-        // Trouver la radio avant de la supprimer
         const radio = await Radio.findById(id);
         if (!radio) {
             return res.status(404).json({ message: 'Radio non trouvée.' });
